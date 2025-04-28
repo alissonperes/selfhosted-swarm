@@ -1,0 +1,124 @@
+version: '3.11'
+
+networks:
+  monitor:
+    driver: overlay
+    name: monitor
+    external: true
+  
+volumes:
+  prometheus_data:
+
+services:
+  prometheus:
+    image: prom/prometheus:v2.36.2
+    volumes:
+      - ./observability/prometheus/:/etc/prometheus/
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=1w'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+      - '--web.enable-lifecycle'
+      - '--web.enable-admin-api'
+    ports:
+      - 9090:9090
+    depends_on:
+      - cadvisor
+      - nodeexporter
+      - traefik
+    networks:
+      - monitor
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 500M
+        reservations:
+          cpus: '0.5'
+          memory: 200M
+      placement:
+        constraints:
+          - node.role==manager
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.prometheus.rule=Host(`logs.localhost`)"
+        - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
+        - "traefik.http.routers.prometheus.entrypoints=websecure"
+        - "traefik.http.routers.prometheus.tls=true"
+        - "traefik.swarm.network=monitor"
+      restart_policy:
+        condition: on-failure
+        max_attempts: 3
+  nodeexporter:
+    image: quay.io/prometheus/node-exporter:latest
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command: 
+      - '--path.procfs=/host/proc' 
+      - '--path.sysfs=/host/sys'
+      - --collector.filesystem.ignored-mount-points
+      - "^/(sys|proc|dev|host|etc|rootfs/var/lib/docker/containers|rootfs/var/lib/docker/overlay2|rootfs/run/docker/netns|rootfs/var/lib/docker/aufs)($$|/)"
+    ports:
+      - 9100:9100
+    networks:
+      - monitor
+    deploy:
+      mode: global
+      resources:
+        limits:
+          cpus: '1'
+          memory: 200M
+        reservations:
+          cpus: '0.5'
+          memory: 50M
+      restart_policy:
+        condition: on-failure
+        max_attempts: 3
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    ports:
+      - "8080:8080"
+    networks:
+      - monitor
+    deploy:
+      mode: global
+      resources:
+        limits:
+          cpus: '1'
+          memory: 300M
+        reservations:
+          cpus: '0.5'
+          memory: 100M
+      restart_policy:
+        condition: on-failure
+        max_attempts: 3
+  processexporter:
+    image: ncabatoff/process-exporter:latest
+    deploy:
+      mode: global
+      restart_policy:
+        condition: any
+    command:
+      - "-config.path=/config/config.yml"
+      - "-procfs=/host/proc"
+    volumes:
+      - type: bind
+        source: /proc
+        target: /host/proc
+        read_only: true
+      - type: bind
+        source: ./observability/process-exporter
+        target: /config
+        read_only: true
+    networks:
+      - monitor
