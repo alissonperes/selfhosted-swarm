@@ -1,0 +1,24 @@
+- name: Deploy all Swarm stacks
+  hosts: swarm_manager
+  become: true
+  tasks:
+    - name: Ensure Docker Swarm is initialized
+      docker_swarm:
+        state: present
+    - name: Find all stack YAML files
+      find:
+        paths: "{{ stack_dir }}"
+        patterns: "*.yaml"
+        recurse: false
+      register: stack_files
+    - name: Deploy stacks
+      docker_stack:
+        name: "{{ item.path | basename | regex_replace('\\.yaml$', '') }}"
+        state: present
+        definition: "{{ lookup('file', item.path) }}"
+      loop: "{{ stack_files.files }}"
+      register: deploy_results
+    - name: Print deployment results
+      debug:
+        msg: "Stack {{ item.item.path | basename | regex_replace('\\.yaml$', '') }} deployed with status: {{ item.status }}"
+      loop: "{{ deploy_results.results }}"
