@@ -5,16 +5,10 @@ networks:
     driver: overlay
     name: monitor
     external: true
-  agent_network:
-    driver: overlay
   app:
     driver: overlay
     name: app
   
-volumes:
-  portainer_data:
-  grafana_data:
-
 services:
   traefik:
     image: traefik:v3.3
@@ -27,15 +21,11 @@ services:
       - app
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./traefik/traefik-v3.yaml:/etc/traefik/traefik.yaml:ro
-      - ./traefik/dynamic:/etc/traefik/dynamic:ro
-      - ./traefik/certs:/certs:ro
+      - /opt/configs/traefik/traefik-v3.yaml:/etc/traefik/traefik.yaml:ro
+      - /opt/configs/traefik/dynamic:/etc/traefik/dynamic:ro
     ports:
       - target: 80
         published: 80
-        mode: host
-      - target: 443
-        published: 443
         mode: host
       - target: 8080
         published: 8088
@@ -59,8 +49,9 @@ services:
         - "traefik.enable=true"
         - "traefik.http.routers.traefik.rule=Host(`proxy.localhost`)"
         - "traefik.http.services.traefik.loadbalancer.server.port=8088"
-        - "traefik.http.routers.traefik.entrypoints=websecure"
-        - "traefik.http.routers.traefik.tls=true"
+        - "traefik.http.routers.traefik.entrypoints=web"
+        - "traefik.http.routers.traefik.service=api@internal"
+        - "traefik.http.routers.traefik.tls=false"
         - "traefik.swarm.network=monitor"
       update_config:
         parallelism: 1

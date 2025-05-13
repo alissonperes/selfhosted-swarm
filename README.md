@@ -3,8 +3,6 @@
 This repository contains Docker Swarm stack files for setting up a **self-hosted observability and management platform** across two nodes.  
 It includes monitoring, visualization, management, and proxy services — all orchestrated via Docker Swarm.
 
----
-
 ## Stack Overview
 
 | Stack File     | Purpose                                                                 |
@@ -13,7 +11,6 @@ It includes monitoring, visualization, management, and proxy services — all or
 | `tools.yaml`   | Deploys visualization and management tools: Grafana, Portainer (with Agent) |
 | `proxy.yaml`   | Deploys Traefik as a reverse proxy and edge router                         |
 
----
 
 ## Services
 
@@ -35,38 +32,43 @@ It includes monitoring, visualization, management, and proxy services — all or
 
 ## Features
 
-- 📈 Full observability of nodes and containers
-- 🔐 Secure HTTPS access via Traefik
-- 🖥️ Easy management through Portainer's web interface
-- ⚡ Fast setup using Docker Swarm stack files
-- ♻️ Persistent storage for Prometheus, Grafana, and Portainer configurations
+- 📈 Full observability of nodes and containers  
+- 🔐 Secure HTTPS access via Traefik  
+- 🖥️ Easy management through Portainer's web interface  
+- ⚡ Automated deployment using Ansible and Docker  
+- ♻️ Persistent storage for Prometheus, Grafana, and Portainer configurations  
 
-## Getting Started
+## Deployment
 
-**Requirements:**
-- Docker and Docker Swarm initialized on one or more nodes
-- Shared network across nodes
-- Basic domain setup (optional, for HTTPS with Traefik)
+Deployment is now automated using **Ansible inside a Docker container**. A helper script handles the full setup process.
 
-### Deploy the stacks
+### Prerequisites
 
-1. **Proxy Stack** (Traefik):
+- Docker and Docker Swarm initialized on all target nodes
+- SSH access to each node (configured in `inventory.ini`)
+- Shared overlay network for services
+- Optional domain setup for HTTPS with Traefik
 
-    ```bash
-    docker stack deploy -c proxy.yaml proxy
-    ```
+### How It Works
 
-2. **Monitoring Stack** (Prometheus, Node Exporter, cAdvisor, Process Exporter):
+1. `./deploy.sh` builds the Docker image for the Ansible runner.
+2. The Ansible container executes the playbook `deploy-all.yml`.
+3. The playbook copies required files (YAML and J2 templates) to target nodes.
+4. Docker stacks are deployed via `docker stack deploy` on the target nodes.
 
-   ```bash
-   docker stack deploy -c observe.yaml observe
-   ```
+> **Note:** No `.j2` templates are currently in use, but the playbook is structured to support them in future enhancements.
 
-3. **Tools Stack** (Grafana, Portainer):
+### Run the Deployment
 
-   ```bash
-   docker stack deploy -c tools.yaml tools
-   ```
+```bash
+cd ansible
+./deploy.sh
+```
+
+This will:
+- Build the Ansible Docker image
+- Run the Ansible playbook inside the container
+- Deploy all configured stacks to your Swarm cluster
 
 ## Documentation
 
@@ -84,4 +86,4 @@ This project is licensed under the [MIT License](LICENSE).
 - [Portainer](https://www.portainer.io/)
 - [cAdvisor](https://github.com/google/cadvisor)
 - [Node Exporter](https://github.com/prometheus/node_exporter)
-
+- [Ansible](https://docs.ansible.com/ansible/latest/)

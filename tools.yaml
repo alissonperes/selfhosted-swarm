@@ -41,8 +41,8 @@ services:
         - "traefik.enable=true"
         - "traefik.http.routers.portainer.rule=Host(`cluster.localhost`)"
         - "traefik.http.services.portainer.loadbalancer.server.port=9000"
-        - "traefik.http.routers.portainer.entrypoints=websecure"
-        - "traefik.http.routers.portainer.tls=true"
+        - "traefik.http.routers.portainer.entrypoints=web"
+        - "traefik.http.routers.portainer.tls=false"
         - "traefik.swarm.network=monitor"
       restart_policy:
         condition: on-failure
@@ -76,9 +76,9 @@ services:
       - traefik
     volumes:
       - grafana_data:/var/lib/grafana
-      - ./grafana/provisioning/:/etc/grafana/provisioning/
+      - /opt/configs/grafana/provisioning/:/etc/grafana/provisioning/
     env_file:
-      - ./grafana/config.monitoring
+      - /opt/configs/grafana/config.monitoring
     networks:
       - monitor
     user: "472"
@@ -97,8 +97,8 @@ services:
         - "traefik.enable=true"
         - "traefik.http.routers.grafana.rule=Host(`monitor.localhost`)"
         - "traefik.http.services.grafana.loadbalancer.server.port=3000"
-        - "traefik.http.routers.grafana.entrypoints=websecure"
-        - "traefik.http.routers.grafana.tls=true"
+        - "traefik.http.routers.grafana.entrypoints=web"
+        - "traefik.http.routers.grafana.tls=false"
         - "traefik.swarm.network=monitor"
       restart_policy:
         condition: on-failure
