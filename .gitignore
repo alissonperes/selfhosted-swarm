@@ -1,5 +1,23 @@
+.vscode
+.DS_Store
+
 */node_modules/*
 .idea/
 *.log
 *.key
 *.crt
+
+# Ignore temporary files
+**.swp
+**.bck
+**.bkp
+**.old
+**.tmp
+
+# Ignore Ansible files
+**.retry
+
+# Ignore log files
+**.out
+**nohup
+**.log
