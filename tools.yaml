@@ -39,7 +39,6 @@ services:
         constraints: [node.role == manager]
       labels:
         - "traefik.enable=true"
-        - "traefik.http.routers.portainer.rule=Host(`cluster.localhost`)"
         - "traefik.http.services.portainer.loadbalancer.server.port=9000"
         - "traefik.http.routers.portainer.entrypoints=web"
         - "traefik.http.routers.portainer.tls=false"
@@ -74,6 +73,8 @@ services:
     depends_on:
       - prometheus
       - traefik
+    ports:
+      - "3003:3000"
     volumes:
       - grafana_data:/var/lib/grafana
       - /opt/configs/grafana/provisioning/:/etc/grafana/provisioning/
@@ -95,7 +96,6 @@ services:
           - node.role==manager
       labels:
         - "traefik.enable=true"
-        - "traefik.http.routers.grafana.rule=Host(`monitor.localhost`)"
         - "traefik.http.services.grafana.loadbalancer.server.port=3000"
         - "traefik.http.routers.grafana.entrypoints=web"
         - "traefik.http.routers.grafana.tls=false"

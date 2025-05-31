@@ -44,7 +44,6 @@ services:
           - node.role==manager
       labels:
         - "traefik.enable=true"
-        - "traefik.http.routers.prometheus.rule=Host(`logs.localhost`)"
         - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
         - "traefik.http.routers.prometheus.entrypoints=web"
         - "traefik.http.routers.prometheus.tls=false"

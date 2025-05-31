@@ -19,7 +19,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
-  "id": 5,
+  "id": 2,
   "links": [],
   "panels": [
     {
@@ -82,7 +82,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.6.0",
+      "pluginVersion": "12.0.1",
       "targets": [
         {
           "datasource": {
@@ -165,7 +165,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.6.0",
+      "pluginVersion": "12.0.1",
       "targets": [
         {
           "datasource": {
@@ -249,7 +249,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.6.0",
+      "pluginVersion": "12.0.1",
       "targets": [
         {
           "datasource": {
@@ -334,7 +334,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.6.0",
+      "pluginVersion": "12.0.1",
       "targets": [
         {
           "datasource": {
@@ -417,7 +417,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.6.0",
+      "pluginVersion": "12.0.1",
       "targets": [
         {
           "datasource": {
@@ -427,7 +427,7 @@
           "editorMode": "code",
           "expr": "node_memory_SwapTotal_bytes",
           "intervalFactor": 2,
-          "legendFormat": "",
+          "legendFormat": "{{instance}}",
           "range": true,
           "refId": "A",
           "step": 1800
@@ -502,7 +502,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.6.0",
+      "pluginVersion": "12.0.1",
       "targets": [
         {
           "datasource": {
@@ -512,6 +512,7 @@
           "editorMode": "code",
           "expr": "max by (instance) (node_hwmon_temp_celsius)",
           "intervalFactor": 2,
+          "legendFormat": "{{instance}}",
           "range": true,
           "refId": "A",
           "step": 1800
@@ -656,7 +657,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.0",
+      "pluginVersion": "12.0.1",
       "targets": [
         {
           "datasource": {
@@ -826,7 +827,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.0",
+      "pluginVersion": "12.0.1",
       "targets": [
         {
           "datasource": {
@@ -1021,7 +1022,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.6.0",
+      "pluginVersion": "12.0.1",
       "targets": [
         {
           "datasource": {
@@ -1129,7 +1130,7 @@
           }
         ]
       },
-      "pluginVersion": "11.6.0",
+      "pluginVersion": "12.0.1",
       "targets": [
         {
           "editorMode": "code",
@@ -1253,7 +1254,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.0",
+      "pluginVersion": "12.0.1",
       "targets": [
         {
           "datasource": {
@@ -1356,7 +1357,7 @@
           "sort": "desc"
         }
       },
-      "pluginVersion": "11.6.0",
+      "pluginVersion": "12.0.1",
       "targets": [
         {
           "datasource": {
@@ -1461,7 +1462,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.0",
+      "pluginVersion": "12.0.1",
       "targets": [
         {
           "datasource": {
@@ -1575,7 +1576,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.0",
+      "pluginVersion": "12.0.1",
       "targets": [
         {
           "datasource": {
@@ -1602,6 +1603,7 @@
   "templating": {
     "list": [
       {
+        "baseFilters": [],
         "datasource": {
           "type": "prometheus",
           "uid": "PBFA97CFB590B2093"
@@ -1620,5 +1622,5 @@
   "timezone": "browser",
   "title": "Docker and system monitoring",
   "uid": "aeian3tcfisjke",
-  "version": 11
+  "version": 1
 }
