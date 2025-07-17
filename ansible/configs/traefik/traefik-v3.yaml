@@ -9,14 +9,22 @@ log:
 
 api:
   dashboard: true
-  insecure: true
+  insecure: false
   debug: true
 
 entryPoints:
   web:
     address: :80
-  traefik:
-    address: :8080
+    http:
+      redirections:
+          entrypoint:
+            to: websecure
+            scheme: https
+            permanent: true
+  websecure:
+    address: :443
+    http:
+      tls: true
   metrics:
     address: :8082
 
@@ -28,9 +36,10 @@ metrics:
 
 providers:
   swarm:
-    exposedByDefault: true
-    endpoint: 'tcp://172.17.0.1:2375'
+    exposedByDefault: false
+    endpoint: 'tcp://192.168.0.10:2375'
     watch: true
+    network: monitor
   file:
-    directory: /etc/traefik/conf/
+    directory: /etc/traefik/dynamic
     watch: true

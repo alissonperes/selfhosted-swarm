@@ -1,0 +1,6 @@
+tls:
+  certificates:
+    - certFile: /certs/maggielab.crt
+      keyFile:  /certs/maggielab.key
+      stores:
+        - default
