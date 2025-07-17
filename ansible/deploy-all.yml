@@ -4,18 +4,18 @@
   tasks:
     - name: Ensure config folders exist on remote host
       file:
-        path: /opt/configs
+        path: /mnt/nfs/docker
         state: directory
         mode: '0755'
-    
+
     - name: Copy configuration folders to nodes
       ansible.builtin.synchronize:
-        src: /opt/configs/
-        dest: /opt/configs/
+        src: configs/
+        dest: /mnt/nfs/docker/configs
         recursive: yes
         delete: no
       delegate_to: localhost
-    
+
 - name: Deploy all Swarm stacks
   hosts: manager
   become: true
@@ -25,30 +25,30 @@
     - name: Ensure Docker Swarm is initialized
       docker_swarm:
         state: present
-    
+
     - name: Find all stack YAML and J2 files
       find:
         paths: "{{ stack_dir }}"
         patterns: "*.yaml*"
         recurse: false
       register: stack_files
-    
+
     - name: Separate J2 and raw YAML files
       set_fact:
         j2_files: "{{ stack_files.files | selectattr('path', 'search', '\\.j2$') | list }}"
         raw_yaml_files: "{{ stack_files.files | rejectattr('path', 'search', '\\.j2$') | list }}"
-    
+
     - name: Template stack files with J2
       template:
         src: "{{ item.path }}"
         dest: "/tmp/{{ item.path | basename | regex_replace('\\.j2$', '') }}"
       loop: "{{ j2_files }}"
       register: templated_files
-    
+
     - name: Combine all stack files (templated + raw)
       set_fact:
         all_stacks: "{{ (templated_files.results | map(attribute='dest') | list) + (raw_yaml_files | map(attribute='path') | list) }}"
-    
+
     - name: Deploy stacks
       docker_stack:
         name: "{{ item | basename | regex_replace('\\.yaml$', '') }}"
@@ -58,7 +58,7 @@
           - "{{ item }}"
       loop: "{{ all_stacks }}"
       register: deploy_results
-    
+
     - name: Print deployment results
       debug:
         msg: "Stack {{ item.item | basename | regex_replace('\\.yaml$', '') }} deployed."
