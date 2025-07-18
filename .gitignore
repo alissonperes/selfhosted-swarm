@@ -22,3 +22,6 @@
 **nohup
 **.log
 inventory.ini
+
+# Ignore ssh keys
+/ansible/files/ssh
