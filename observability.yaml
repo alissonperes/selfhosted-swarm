@@ -1,5 +1,4 @@
-version: '3.11'
-
+---
 networks:
   monitor:
     driver: overlay
@@ -13,7 +12,7 @@ services:
   prometheus:
     image: prom/prometheus:v2.36.2
     volumes:
-      - /opt/configs/observability/prometheus/:/etc/prometheus/
+      - /mnt/nfs/docker/configs/observability/prometheus/:/etc/prometheus/
       - prometheus_data:/prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
@@ -24,7 +23,10 @@ services:
       - '--web.enable-lifecycle'
       - '--web.enable-admin-api'
     ports:
-      - 9090:9090
+      - target: 9090
+        published: 9090
+        protocol: tcp
+        mode: ingress
     depends_on:
       - cadvisor
       - nodeexporter
@@ -44,8 +46,9 @@ services:
           - node.role==manager
       labels:
         - "traefik.enable=true"
+        - "traefik.http.routers.prometheus.rule=Host(`prometheus.maggielab.org`)"
         - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
-        - "traefik.http.routers.prometheus.entrypoints=web"
+        - "traefik.http.routers.prometheus.entrypoints=websecure"
         - "traefik.http.routers.prometheus.tls=false"
         - "traefik.swarm.network=monitor"
       restart_policy:
@@ -116,7 +119,7 @@ services:
         target: /host/proc
         read_only: true
       - type: bind
-        source: /opt/configs/observability/process-exporter
+        source: /mnt/nfs/docker/configs/observability/process-exporter
         target: /config
         read_only: true
     networks:

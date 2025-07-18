@@ -1,0 +1,20 @@
+---
+
+- Developer:
+    - Github:
+        - href: https://github.com/alissonperes
+          icon: si-refinedgithub
+
+- Social:
+    - Reddit:
+        - icon: si-reddit
+          href: https://reddit.com/
+          description: The front page of the internet
+
+- Entertainment:
+    - YouTube:
+        - icon: si-youtube
+          href: https://youtube.com/
+    - Twitch:
+        - icon: si-twitch
+          href: https://twitch.tv/

@@ -1,5 +1,4 @@
-version: '3.11'
-
+---
 networks:
   monitor:
     driver: overlay
@@ -10,16 +9,13 @@ networks:
   
 volumes:
   portainer_data:
+    external: true
   grafana_data:
 
 services:
   portainer:
     image: portainer/portainer-ce:lts
     command: -H tcp://tasks.agent:9001 --tlsskipverify
-    ports:
-      - "9443:9443"
-      - "9000:9000"
-      - "8000:8000"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - portainer_data:/data
@@ -40,8 +36,9 @@ services:
         constraints: [node.role == manager]
       labels:
         - "traefik.enable=true"
+        - "traefik.http.routers.portainer.rule=Host(`cluster.maggielab.org`)"
         - "traefik.http.services.portainer.loadbalancer.server.port=9000"
-        - "traefik.http.routers.portainer.entrypoints=web"
+        - "traefik.http.routers.portainer.entrypoints=websecure"
         - "traefik.http.routers.portainer.tls=false"
         - "traefik.swarm.network=monitor"
       restart_policy:
@@ -74,13 +71,11 @@ services:
     depends_on:
       - prometheus
       - traefik
-    ports:
-      - "3003:3000"
     volumes:
       - grafana_data:/var/lib/grafana
-      - /opt/configs/grafana/provisioning/:/etc/grafana/provisioning/
+      - /mnt/nfs/docker/configs/grafana/provisioning/:/etc/grafana/provisioning/
     env_file:
-      - /opt/configs/grafana/config.monitoring
+      - /mnt/nfs/docker/configs/grafana/config.monitoring
     networks:
       - monitor
     user: "472"
@@ -97,9 +92,43 @@ services:
           - node.role==manager
       labels:
         - "traefik.enable=true"
+        - "traefik.http.routers.grafana.rule=Host(`grafana.maggielab.org`)"
         - "traefik.http.services.grafana.loadbalancer.server.port=3000"
-        - "traefik.http.routers.grafana.entrypoints=web"
+        - "traefik.http.routers.grafana.entrypoints=websecure"
         - "traefik.http.routers.grafana.tls=false"
         - "traefik.swarm.network=monitor"
       restart_policy:
         condition: on-failure
+
+  homepage:
+    image: ghcr.io/gethomepage/homepage:latest
+    networks:
+      - monitor
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 500M
+        reservations:
+          cpus: '0.25'
+          memory: 100M
+      placement:
+        constraints:
+          - node.role==manager
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.services.homelab.loadbalancer.server.port=3000"
+        - "traefik.http.routers.homelab.rule=Host(`home.maggielab.org`)"
+        - "traefik.http.routers.homelab.entrypoints=websecure"
+        - "traefik.http.routers.homelab.tls=false"
+        - "traefik.http.routers.homelab.service=homelab"
+        - "traefik.swarm.network=monitor"
+      restart_policy:
+        condition: on-failure
+    volumes:
+      - /mnt/nfs/docker/configs/homepage/public/images/:/app/public/images
+      -  /mnt/nfs/docker/configs/homepage:/app/config # Make sure your local config directory exists
+    environment:
+      HOMEPAGE_ALLOWED_HOSTS: home.maggielab.org
+      PUID: 1000
+      PGID: 1000

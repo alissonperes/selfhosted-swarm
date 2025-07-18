@@ -1,0 +1,35 @@
+---
+- HomeLab:
+    - Portainer:
+          href: https://cluster.maggielab.org
+          icon: si-portainer
+          description: Cluster management tool
+          widget:
+            type: portainer
+            url: https://cluster.maggielab.org
+            env: 1
+            key: ptr_Wj0eUey7O9UawKW39L7/+8QW4imJQuz5Q5nxA2vjqbM=
+    - Grafana:
+          href: https://grafana.maggielab.org
+          icon: si-grafana
+          description: Monitoring dashboards and alerts tool
+          widget:
+            type: grafana
+            url: https://grafana.maggielab.org
+            version: 2
+            username: admin
+            password: adminadmin
+    - Prometheus:
+          href: https://prometheus.maggielab.org
+          icon: si-prometheus
+          description: Metrics Collector
+          widget:
+            type: prometheus
+            url: https://prometheus.maggielab.org
+    - Traefik:
+          href: https://traefik.maggielab.org
+          icon: si-traefikproxy
+          description: reverse proxy and load balancer.
+          widget:
+            type: traefik
+            url: https://traefik.maggielab.org

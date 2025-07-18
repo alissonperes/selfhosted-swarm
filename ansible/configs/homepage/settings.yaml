@@ -1,0 +1,16 @@
+title: MaggieLab
+description: MaggieLab homepage
+startUrl: http://home.maggielab.org
+background:
+  image: /images/64776-Montevideo.jpg
+  blur: sm # sm, "", md, xl... see https://tailwindcss.com/docs/backdrop-blur
+  saturate: 200 # 0, 50, 100... see https://tailwindcss.com/docs/backdrop-saturate
+  brightness: 50 # 0, 50, 75... see https://tailwindcss.com/docs/backdrop-brightness
+  opacity: 50 # 0-100
+language: en
+showStats: true
+headerStyle: boxedWidgets
+layout:
+  HomeLab:
+    style: row
+    columns: 2

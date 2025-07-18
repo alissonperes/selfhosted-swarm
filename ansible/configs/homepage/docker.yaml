@@ -1,0 +1,5 @@
+homelab:
+  host: proxy_traefik
+  port: 443
+  protocol: https
+  swarm: true
