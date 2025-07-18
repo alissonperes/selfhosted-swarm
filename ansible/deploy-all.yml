@@ -10,17 +10,17 @@
 
     - name: Copy configuration folders to nodes
       ansible.builtin.synchronize:
-        src: configs/
+        src: /opt/configs/
         dest: /mnt/nfs/docker/configs
         recursive: yes
         delete: no
       delegate_to: localhost
 
 - name: Deploy all Swarm stacks
-  hosts: manager
+  hosts: managers
   become: true
   vars:
-    stack_dir: "{{ playbook_dir }}/.."
+    stack_dir: "{{ (playbook_dir ~ '/..') | realpath }}"
   tasks:
     - name: Ensure Docker Swarm is initialized
       docker_swarm:
@@ -32,6 +32,7 @@
         patterns: "*.yaml*"
         recurse: false
       register: stack_files
+      delegate_to: localhost
 
     - name: Separate J2 and raw YAML files
       set_fact:
@@ -49,6 +50,18 @@
       set_fact:
         all_stacks: "{{ (templated_files.results | map(attribute='dest') | list) + (raw_yaml_files | map(attribute='path') | list) }}"
 
+    - name: Copy stack files to remote host
+      copy:
+        src: "{{ item }}"
+        dest: "/tmp/{{ item | basename }}"
+        mode: '0644'
+      loop: "{{ all_stacks }}"
+      run_once: true  # Only needed once, not per manager
+
+    - name: Set remote stack paths
+      set_fact:
+        remote_stack_paths: "{{ all_stacks | map('basename') | map('regex_replace', '^(.*)$', '/tmp/\\1') | list }}"
+
     - name: Deploy stacks
       docker_stack:
         name: "{{ item | basename | regex_replace('\\.yaml$', '') }}"
@@ -56,7 +69,7 @@
         docker_host: "unix:///var/run/docker.sock"
         compose:
           - "{{ item }}"
-      loop: "{{ all_stacks }}"
+      loop: "{{ remote_stack_paths }}"
       register: deploy_results
 
     - name: Print deployment results
