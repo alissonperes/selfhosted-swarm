@@ -30,7 +30,7 @@ docker run --rm -it \
   -e ANSIBLE_HOST_KEY_CHECKING=False \
   -w /ansible-hosted/ansible \
   "$IMAGE_NAME" \
-  -i inventory.ini deploy-all.yml -vv || {
+  -i inventory.ini deploy-all.yml || {
     echo "[-] Ansible playbook execution failed"
     exit 2
 }
